@@ -11,9 +11,11 @@ import type {
   TypeWithModel,
 } from "../EntityPicker";
 
+export type CollectionPickerModel = Extract<SearchModelType, "collection">;
+
 export type CollectionPickerItem = TypeWithModel<
   CollectionId,
-  SearchModelType
+  CollectionPickerModel
 > &
   Pick<Partial<SearchResult>, "description" | "can_write"> & {
     location?: string | null;
@@ -29,7 +31,7 @@ export type CollectionPickerOptions = EntityPickerModalOptions & {
 
 export type CollectionItemListProps = ListProps<
   CollectionId,
-  SearchModelType,
+  CollectionPickerModel,
   CollectionPickerItem,
   SearchListQuery,
   CollectionPickerOptions
