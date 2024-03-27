@@ -14,7 +14,7 @@ import { X_AXIS_DATA_KEY } from "metabase/visualizations/echarts/cartesian/const
 import { isNotNull } from "metabase/lib/types";
 
 import { isTimeSeriesAxis } from "../model/guards";
-import { getAutoAxisEnabledSetting } from "../option/axis";
+import { getAutoAxisEnabledSetting } from "../utils/axis";
 import type {
   ChartBoundsCoords,
   ChartMeasurements,
