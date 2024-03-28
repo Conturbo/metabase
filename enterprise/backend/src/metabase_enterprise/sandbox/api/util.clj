@@ -16,9 +16,16 @@
   [group-id->sandboxes {:as _sandbox :keys [group_id table_id] {:keys [db_id]} :table}]
   (let [group-id->sandboxes (dissoc group-id->sandboxes group_id)]
     (not-any? (fn [[other-group-id other-group-sandboxes]]
+                ;; If the user is in another group with view and query access to the table, and no sandbox defined for
+                ;; it, then we assume this sandbox should not be enforced.
                 (and (data-perms/group-has-permission-for-table? other-group-id
                                                                  :perms/view-data
                                                                  :unrestricted
+                                                                 db_id
+                                                                 table_id)
+                     (data-perms/group-has-permission-for-table? other-group-id
+                                                                 :perms/create-queries
+                                                                 :query-builder
                                                                  db_id
                                                                  table_id)
                      (not-any? (fn [sandbox] (= (:table_id sandbox) table_id)) other-group-sandboxes)))
@@ -49,11 +56,11 @@
   is bound."
   :feature :sandboxes
   []
-  (boolean
-   (when-not *is-superuser?*
-     (if *current-user-id*
-       (seq (enforced-sandboxes-for *current-user-id*))
-       ;; If no *current-user-id* is bound we can't check for sandboxes, so we should throw in this case to avoid
-       ;; returning `false` for users who should actually be sandboxes.
-       (throw (ex-info (str (tru "No current user found"))
-                       {:status-code 403}))))))
+  (when-not *is-superuser?*
+    (if *current-user-id*
+      (let [enforced-sandboxes (enforced-sandboxes-for *current-user-id*)]
+        (boolean (seq enforced-sandboxes)))
+      ;; If no *current-user-id* is bound we can't check for sandboxes, so we should throw in this case to avoid
+      ;; returning `false` for users who should actually be sandboxes.
+      (throw (ex-info (str (tru "No current user found"))
+                      {:status-code 403})))))
