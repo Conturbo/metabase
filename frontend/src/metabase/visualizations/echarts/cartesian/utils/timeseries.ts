@@ -7,10 +7,17 @@ import type {
   RawSeries,
   RowValue,
 } from "metabase-types/api";
-import type { TimeSeriesInterval } from "metabase/visualizations/echarts/cartesian/model/types";
+import type {
+  ShowWarning,
+  TimeSeriesInterval,
+} from "metabase/visualizations/echarts/cartesian/model/types";
 import { parseTimestamp } from "metabase/lib/time";
 import type { Formatter } from "metabase/visualizations/types";
 import type { ContinuousDomain } from "metabase/visualizations/shared/types/scale";
+import {
+  multipleTimezoneWarning,
+  unexpectedTimezoneWarning,
+} from "metabase/visualizations/lib/warnings";
 
 export const tryGetDate = (rowValue: RowValue): Dayjs | null => {
   if (typeof rowValue === "boolean") {
@@ -239,8 +246,21 @@ export function getLargestInterval(intervals: TimeSeriesInterval[]) {
 // We should always have results_timezone, but just in case we fallback to UTC
 export const DEFAULT_TIMEZONE = "Etc/UTC";
 
-export function getTimezone(series: RawSeries) {
-  const { results_timezone } = series[0].data;
+export function getTimezone(series: RawSeries, showWarning?: ShowWarning) {
+  // Dashboard multiseries cards might have series with different timezones.
+  const timezones = Array.from(
+    new Set(series.map(s => s.data.results_timezone)),
+  );
+  if (timezones.length > 1) {
+    showWarning?.(multipleTimezoneWarning(timezones).text);
+  }
+  // Warn if the query was run in an unexpected timezone.
+  const { results_timezone, requested_timezone } = series[0].data;
+  if (requested_timezone && requested_timezone !== results_timezone) {
+    showWarning?.(
+      unexpectedTimezoneWarning({ results_timezone, requested_timezone }).text,
+    );
+  }
 
   return results_timezone || DEFAULT_TIMEZONE;
 }

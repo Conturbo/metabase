@@ -58,6 +58,7 @@ export const getWaterfallChartModel = (
     dataset,
     settings,
     renderingContext,
+    showWarning,
   );
   if (
     xAxisModel.axisType === "value" ||

@@ -15,6 +15,7 @@ import type {
   DateRange,
   TimeSeriesXAxisModel,
   NumericXAxisModel,
+  ShowWarning,
 } from "metabase/visualizations/echarts/cartesian/model/types";
 import type {
   ComputedVisualizationSettings,
@@ -486,6 +487,7 @@ export function getTimeSeriesXAxisModel(
   settings: ComputedVisualizationSettings,
   label: string | undefined,
   renderingContext: RenderingContext,
+  showWarning?: ShowWarning,
 ): TimeSeriesXAxisModel {
   const xValues = dataset.map(datum => datum[X_AXIS_DATA_KEY]);
   const dimensionColumn = dimensionModel.column;
@@ -495,6 +497,7 @@ export function getTimeSeriesXAxisModel(
     xValues,
     rawSeries,
     dimensionModel,
+    showWarning,
   );
   const { interval: dataTimeSeriesInterval } = timeSeriesInfo;
   const formatter = (value: RowValue, unit?: DateTimeAbsoluteUnit) => {
@@ -589,6 +592,7 @@ export function getXAxisModel(
   dataset: ChartDataset,
   settings: ComputedVisualizationSettings,
   renderingContext: RenderingContext,
+  showWarning?: ShowWarning,
 ): XAxisModel {
   const label = settings["graph.x_axis.labels_enabled"]
     ? settings["graph.x_axis.title_text"]
@@ -604,6 +608,7 @@ export function getXAxisModel(
       settings,
       label,
       renderingContext,
+      showWarning,
     );
   }
 
@@ -686,6 +691,7 @@ function getTimeSeriesXAxisInfo(
   xValues: RowValue[],
   rawSeries: RawSeries,
   dimensionModel: DimensionModel,
+  showWarning?: ShowWarning,
 ) {
   // We need three pieces of information to define a timeseries range:
   // 1. interval - it's really the "unit": month, day, etc
@@ -696,7 +702,7 @@ function getTimeSeriesXAxisInfo(
       .map(column => (isAbsoluteDateTimeUnit(column.unit) ? column.unit : null))
       .filter(isNotNull),
   );
-  const timezone = getTimezone(rawSeries);
+  const timezone = getTimezone(rawSeries, showWarning);
   const interval = (computeTimeseriesDataInverval(xValues, unit) ?? {
     count: 1,
     unit: "day",
