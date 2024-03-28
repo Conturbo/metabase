@@ -3,7 +3,10 @@ import type {
   ComputedVisualizationSettings,
   RenderingContext,
 } from "metabase/visualizations/types";
-import type { CartesianChartModel } from "metabase/visualizations/echarts/cartesian/model/types";
+import type {
+  CartesianChartModel,
+  ShowWarning,
+} from "metabase/visualizations/echarts/cartesian/model/types";
 import {
   getCardSeriesModels,
   getDimensionModel,
@@ -71,6 +74,7 @@ export const getCartesianChartModel = (
   rawSeries: RawSeries,
   settings: ComputedVisualizationSettings,
   renderingContext: RenderingContext,
+  showWarning?: ShowWarning,
 ): CartesianChartModel => {
   // rawSeries has more than one element when two or more cards are combined on a dashboard
   const hasMultipleCards = rawSeries.length > 1;
@@ -95,7 +99,7 @@ export const getCartesianChartModel = (
       dataset = getScatterPlotDataset(rawSeries, cardsColumns);
       break;
     default:
-      dataset = getJoinedCardsDataset(rawSeries, cardsColumns);
+      dataset = getJoinedCardsDataset(rawSeries, cardsColumns, showWarning);
   }
   dataset = sortDataset(dataset, settings["graph.x_axis.scale"]);
 
