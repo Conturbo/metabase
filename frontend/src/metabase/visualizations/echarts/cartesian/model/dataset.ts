@@ -33,7 +33,10 @@ import {
   X_AXIS_DATA_KEY,
 } from "metabase/visualizations/echarts/cartesian/constants/dataset";
 import { getNumberOr } from "metabase/visualizations/lib/settings/row-values";
-import { unaggregatedDataWarning } from "metabase/visualizations/lib/warnings";
+import {
+  nullDimensionWarning,
+  unaggregatedDataWarning,
+} from "metabase/visualizations/lib/warnings";
 import { isMetric } from "metabase-lib/types/utils/isa";
 import { isCategoryAxis, isNumericAxis } from "./guards";
 import { signedLog, signedSquareRoot } from "./transforms";
@@ -415,12 +418,15 @@ function getStackedDataLabelTransform(
   };
 }
 
-function filterNullDimensionValues(dataset: ChartDataset) {
-  // TODO show warning message
+export function filterNullDimensionValues(
+  dataset: ChartDataset,
+  showWarning?: ShowWarning,
+) {
   const filteredDataset: ChartDataset = [];
 
   dataset.forEach((datum, originalIndex) => {
     if (datum[X_AXIS_DATA_KEY] == null) {
+      showWarning?.(nullDimensionWarning().text);
       return;
     }
     filteredDataset.push({
@@ -515,6 +521,8 @@ function getHistogramDataset(
  * @param {ChartDataset} dataset The dataset to be transformed.
  * @param {SeriesModel[]} seriesModels Array of series models.
  * @param {ComputedVisualizationSettings} settings Computed visualization settings.
+ * @param {ShowWarning | undefined} showWarning Displays a warning icon and message in the query builder.
+ *
  * @returns {ChartDataset} A transformed dataset.
  */
 export const applyVisualizationSettingsDataTransformations = (
@@ -523,6 +531,7 @@ export const applyVisualizationSettingsDataTransformations = (
   seriesModels: SeriesModel[],
   yAxisScaleTransforms: NumericAxisScaleTransforms,
   settings: ComputedVisualizationSettings,
+  showWarning?: ShowWarning,
 ) => {
   const seriesDataKeys = seriesModels.map(seriesModel => seriesModel.dataKey);
 
@@ -531,7 +540,7 @@ export const applyVisualizationSettingsDataTransformations = (
     xAxisModel.axisType === "time" ||
     xAxisModel.isHistogram
   ) {
-    dataset = filterNullDimensionValues(dataset);
+    dataset = filterNullDimensionValues(dataset, showWarning);
   }
 
   if (settings["graph.y_axis.scale"] === "log") {

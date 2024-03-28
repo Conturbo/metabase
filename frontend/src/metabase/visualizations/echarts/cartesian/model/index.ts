@@ -121,6 +121,7 @@ export const getCartesianChartModel = (
     seriesModels,
     yAxisScaleTransforms,
     settings,
+    showWarning,
   );
 
   const isAutoSplitSupported = SUPPORTED_AUTO_SPLIT_TYPES.includes(

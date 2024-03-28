@@ -13,6 +13,7 @@ import {
 } from "metabase/visualizations/echarts/cartesian/model/series";
 import { getCartesianChartColumns } from "metabase/visualizations/lib/graph/columns";
 import {
+  filterNullDimensionValues,
   getCardsColumnByDataKeyMap,
   getJoinedCardsDataset,
   sortDataset,
@@ -58,6 +59,14 @@ export const getWaterfallChartModel = (
     settings,
     renderingContext,
   );
+  if (
+    xAxisModel.axisType === "value" ||
+    xAxisModel.axisType === "time" ||
+    xAxisModel.isHistogram
+  ) {
+    dataset = filterNullDimensionValues(dataset, showWarning);
+  }
+
   const yAxisScaleTransforms = getAxisTransforms(
     settings["graph.y_axis.scale"],
   );
