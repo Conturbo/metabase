@@ -30,6 +30,8 @@ import structuredTimeSeriesYear from "./structured-time-series-year.json";
 import timeXScaleTwoBarsWithoutTotal from "./time-x-scale-two-bars-without-total.json";
 import enormousDataset from "./enormous-dataset.json";
 import nulls from "./nulls.json";
+import linearNullDimension from "./linear-null-dimension.json";
+import ordinalNullDimension from "./ordinal-null-dimension.json";
 
 export const data = {
   timeseriesXScale,
@@ -64,4 +66,6 @@ export const data = {
   timeXScaleTwoBarsWithoutTotal,
   enormousDataset,
   nulls,
+  linearNullDimension,
+  ordinalNullDimension,
 };

@@ -251,3 +251,17 @@ Nulls.args = {
   dashcardSettings: {},
   renderingContext,
 };
+
+export const LinearNullDimension = Template.bind({});
+LinearNullDimension.args = {
+  rawSeries: data.linearNullDimension as any,
+  dashcardSettings: {},
+  renderingContext,
+};
+
+export const OrdinalNullDimension = Template.bind({});
+OrdinalNullDimension.args = {
+  rawSeries: data.ordinalNullDimension as any,
+  dashcardSettings: {},
+  renderingContext,
+};
