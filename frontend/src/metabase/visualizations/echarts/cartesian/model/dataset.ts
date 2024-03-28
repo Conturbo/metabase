@@ -1,4 +1,3 @@
-import dayjs from "dayjs";
 import { t } from "ttag";
 import type {
   DatasetColumn,
@@ -34,10 +33,12 @@ import {
 } from "metabase/visualizations/echarts/cartesian/constants/dataset";
 import { getNumberOr } from "metabase/visualizations/lib/settings/row-values";
 import {
+  invalidDateWarning,
   nullDimensionWarning,
   unaggregatedDataWarning,
 } from "metabase/visualizations/lib/warnings";
 import { isMetric } from "metabase-lib/types/utils/isa";
+import { tryGetDate } from "../utils/timeseries";
 import { isCategoryAxis, isNumericAxis } from "./guards";
 import { signedLog, signedSquareRoot } from "./transforms";
 
@@ -590,27 +591,33 @@ export const applyVisualizationSettingsDataTransformations = (
 
 export const sortDataset = (
   dataset: ChartDataset,
-  xAxisScale?: XAxisScale,
+  xAxisScale: XAxisScale | undefined,
+  showWarning?: ShowWarning,
 ): ChartDataset => {
+  if (xAxisScale === "ordinal") {
+    return dataset;
+  }
+
   if (xAxisScale === "timeseries") {
     return sortByDimension(dataset, (left, right) => {
-      if (typeof left === "string" && typeof right === "string") {
-        return dayjs(left).valueOf() - dayjs(right).valueOf();
+      const leftDate = tryGetDate(left);
+      const rightDate = tryGetDate(right);
+
+      if (leftDate == null || rightDate == null) {
+        showWarning?.(invalidDateWarning(leftDate == null ? left : right).text);
+        return 0;
       }
-      return 0;
+
+      return leftDate.valueOf() - rightDate.valueOf();
     });
   }
 
-  if (xAxisScale !== "ordinal") {
-    return sortByDimension(dataset, (left, right) => {
-      if (typeof left === "number" && typeof right === "number") {
-        return left - right;
-      }
-      return 0;
-    });
-  }
-
-  return dataset;
+  return sortByDimension(dataset, (left, right) => {
+    if (typeof left === "number" && typeof right === "number") {
+      return left - right;
+    }
+    return 0;
+  });
 };
 
 /**
