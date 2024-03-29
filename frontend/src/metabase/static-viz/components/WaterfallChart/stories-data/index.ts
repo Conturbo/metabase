@@ -30,6 +30,7 @@ import structuredTimeSeriesYear from "./structured-time-series-year.json";
 import timeXScaleTwoBarsWithoutTotal from "./time-x-scale-two-bars-without-total.json";
 import enormousDataset from "./enormous-dataset.json";
 import nulls from "./nulls.json";
+import nullXAxisValue from "./null-x-axis-value.json";
 
 export const data = {
   timeseriesXScale,
@@ -64,4 +65,5 @@ export const data = {
   timeXScaleTwoBarsWithoutTotal,
   enormousDataset,
   nulls,
+  nullXAxisValue,
 };

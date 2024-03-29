@@ -251,3 +251,10 @@ Nulls.args = {
   dashcardSettings: {},
   renderingContext,
 };
+
+export const NullXAxisValue = Template.bind({});
+NullXAxisValue.args = {
+  rawSeries: data.nullXAxisValue as any,
+  dashcardSettings: {},
+  renderingContext,
+};
